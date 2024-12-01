@@ -22,6 +22,7 @@ type taskController struct {
 	tu usecase.ITaskUsecae
 }
 
+// comment
 func NewTaskController(tu usecase.ITaskUsecae) ITaskContoller {
 	return &taskController{tu}
 }
