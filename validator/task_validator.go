@@ -7,16 +7,16 @@ import (
 )
 
 type ITaskValidator interface {
-	TaskValidator(task model.Task) error
+	TaskValidate(task model.Task) error
 }
 
-type TaskValidator struct{}
+type taskValidator struct{}
 
 func NewTaskValidator() ITaskValidator {
-	return &TaskValidator{}
+	return &taskValidator{}
 }
 
-func (tv *TaskValidator) TaskValidator(task model.Task) error {
+func (tv *taskValidator) TaskValidate(task model.Task) error {
 	return validation.ValidateStruct(&task,
 		validation.Field(
 			&task.Title,

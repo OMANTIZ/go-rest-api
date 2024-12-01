@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/labstack/echo/v4"
 )
 
-type ITaskContoller interface {
+type ITaskController interface {
 	GetAllTasks(c echo.Context) error
 	GetTaskById(c echo.Context) error
 	CreateTask(c echo.Context) error
@@ -19,11 +19,10 @@ type ITaskContoller interface {
 }
 
 type taskController struct {
-	tu usecase.ITaskUsecae
+	tu usecase.ITaskUsecase
 }
 
-// comment
-func NewTaskController(tu usecase.ITaskUsecae) ITaskContoller {
+func NewTaskController(tu usecase.ITaskUsecase) ITaskController {
 	return &taskController{tu}
 }
 

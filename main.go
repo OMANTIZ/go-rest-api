@@ -6,7 +6,7 @@ import (
 	"go-rest-api/repository"
 	"go-rest-api/router"
 	"go-rest-api/usecase"
-	"go-rest-api/usecase/validator"
+	"go-rest-api/validator"
 )
 
 func main() {

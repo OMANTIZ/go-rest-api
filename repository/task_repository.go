@@ -24,7 +24,6 @@ func NewTaskRepository(db *gorm.DB) ITaskRepository {
 	return &taskRepository{db}
 }
 
-// IDに一致するタスクの一覧を取得
 func (tr *taskRepository) GetAllTasks(tasks *[]model.Task, userId uint) error {
 	if err := tr.db.Joins("User").Where("user_id=?", userId).Order("created_at").Find(tasks).Error; err != nil {
 		return err
@@ -32,7 +31,6 @@ func (tr *taskRepository) GetAllTasks(tasks *[]model.Task, userId uint) error {
 	return nil
 }
 
-// taskIdに一致するタスクのレコード情報を取得
 func (tr *taskRepository) GetTaskById(task *model.Task, userId uint, taskId uint) error {
 	if err := tr.db.Joins("User").Where("user_id=?", userId).First(task, taskId).Error; err != nil {
 		return err
@@ -40,7 +38,6 @@ func (tr *taskRepository) GetTaskById(task *model.Task, userId uint, taskId uint
 	return nil
 }
 
-// タスクを作成
 func (tr *taskRepository) CreateTask(task *model.Task) error {
 	if err := tr.db.Create(task).Error; err != nil {
 		return err
@@ -48,7 +45,6 @@ func (tr *taskRepository) CreateTask(task *model.Task) error {
 	return nil
 }
 
-// タスクの更新
 func (tr *taskRepository) UpdateTask(task *model.Task, userId uint, taskId uint) error {
 	result := tr.db.Model(task).Clauses(clause.Returning{}).Where("id=? AND user_id=?", taskId, userId).Update("title", task.Title)
 	if result.Error != nil {
@@ -60,14 +56,13 @@ func (tr *taskRepository) UpdateTask(task *model.Task, userId uint, taskId uint)
 	return nil
 }
 
-// タスクの削除
 func (tr *taskRepository) DeleteTask(userId uint, taskId uint) error {
 	result := tr.db.Where("id=? AND user_id=?", taskId, userId).Delete(&model.Task{})
 	if result.Error != nil {
 		return result.Error
 	}
 	if result.RowsAffected < 1 {
-		return fmt.Errorf("objcet does not exist")
+		return fmt.Errorf("object does not exist")
 	}
 	return nil
 }

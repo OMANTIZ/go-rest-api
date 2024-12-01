@@ -3,7 +3,7 @@ package usecase
 import (
 	"go-rest-api/model"
 	"go-rest-api/repository"
-	"go-rest-api/usecase/validator"
+	"go-rest-api/validator"
 	"os"
 	"time"
 
@@ -29,7 +29,6 @@ func (uu *userUsecase) SignUp(user model.User) (model.UserResponse, error) {
 	if err := uu.uv.UserValidate(user); err != nil {
 		return model.UserResponse{}, err
 	}
-	// パスワードの暗号化
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
 	if err != nil {
 		return model.UserResponse{}, err
@@ -53,19 +52,17 @@ func (uu *userUsecase) Login(user model.User) (string, error) {
 	if err := uu.ur.GetUserByEmail(&storedUser, user.Email); err != nil {
 		return "", err
 	}
-	// 平文のパスワードと暗号化済みのパスワードを比較
 	err := bcrypt.CompareHashAndPassword([]byte(storedUser.Password), []byte(user.Password))
 	if err != nil {
 		return "", err
 	}
-	// jwt(JSON Web Token)を使用して認証と認可を実施する
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": storedUser.ID,
 		"exp":     time.Now().Add(time.Hour * 12).Unix(),
 	})
 	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET")))
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	return tokenString, nil
 }

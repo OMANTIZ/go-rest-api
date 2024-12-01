@@ -3,10 +3,10 @@ package usecase
 import (
 	"go-rest-api/model"
 	"go-rest-api/repository"
-	"go-rest-api/usecase/validator"
+	"go-rest-api/validator"
 )
 
-type ITaskUsecae interface {
+type ITaskUsecase interface {
 	GetAllTasks(userId uint) ([]model.TaskResponse, error)
 	GetTaskById(userId uint, taskId uint) (model.TaskResponse, error)
 	CreateTask(task model.Task) (model.TaskResponse, error)
@@ -14,16 +14,16 @@ type ITaskUsecae interface {
 	DeleteTask(userId uint, taskId uint) error
 }
 
-type taskUsecae struct {
+type taskUsecase struct {
 	tr repository.ITaskRepository
 	tv validator.ITaskValidator
 }
 
-func NewTaskUsecase(tr repository.ITaskRepository, tv validator.ITaskValidator) ITaskUsecae {
-	return &taskUsecae{tr, tv}
+func NewTaskUsecase(tr repository.ITaskRepository, tv validator.ITaskValidator) ITaskUsecase {
+	return &taskUsecase{tr, tv}
 }
 
-func (tu *taskUsecae) GetAllTasks(userId uint) ([]model.TaskResponse, error) {
+func (tu *taskUsecase) GetAllTasks(userId uint) ([]model.TaskResponse, error) {
 	tasks := []model.Task{}
 	if err := tu.tr.GetAllTasks(&tasks, userId); err != nil {
 		return nil, err
@@ -41,7 +41,7 @@ func (tu *taskUsecae) GetAllTasks(userId uint) ([]model.TaskResponse, error) {
 	return resTasks, nil
 }
 
-func (tu *taskUsecae) GetTaskById(userId uint, taskId uint) (model.TaskResponse, error) {
+func (tu *taskUsecase) GetTaskById(userId uint, taskId uint) (model.TaskResponse, error) {
 	task := model.Task{}
 	if err := tu.tr.GetTaskById(&task, userId, taskId); err != nil {
 		return model.TaskResponse{}, err
@@ -55,24 +55,8 @@ func (tu *taskUsecae) GetTaskById(userId uint, taskId uint) (model.TaskResponse,
 	return resTask, nil
 }
 
-func (tu *taskUsecae) UpdateTask(task model.Task, userId uint, taskId uint) (model.TaskResponse, error) {
-	if err := tu.tv.TaskValidator(task); err != nil {
-		return model.TaskResponse{}, err
-	}
-	if err := tu.tr.UpdateTask(&task, userId, taskId); err != nil {
-		return model.TaskResponse{}, err
-	}
-	resTask := model.TaskResponse{
-		ID:        task.ID,
-		Title:     task.Title,
-		CreatedAt: task.CreatedAt,
-		UpdatedAt: task.UpdatedAt,
-	}
-	return resTask, nil
-}
-
-func (tu *taskUsecae) CreateTask(task model.Task) (model.TaskResponse, error) {
-	if err := tu.tv.TaskValidator(task); err != nil {
+func (tu *taskUsecase) CreateTask(task model.Task) (model.TaskResponse, error) {
+	if err := tu.tv.TaskValidate(task); err != nil {
 		return model.TaskResponse{}, err
 	}
 	if err := tu.tr.CreateTask(&task); err != nil {
@@ -87,7 +71,23 @@ func (tu *taskUsecae) CreateTask(task model.Task) (model.TaskResponse, error) {
 	return resTask, nil
 }
 
-func (tu *taskUsecae) DeleteTask(userId uint, taskId uint) error {
+func (tu *taskUsecase) UpdateTask(task model.Task, userId uint, taskId uint) (model.TaskResponse, error) {
+	if err := tu.tv.TaskValidate(task); err != nil {
+		return model.TaskResponse{}, err
+	}
+	if err := tu.tr.UpdateTask(&task, userId, taskId); err != nil {
+		return model.TaskResponse{}, err
+	}
+	resTask := model.TaskResponse{
+		ID:        task.ID,
+		Title:     task.Title,
+		CreatedAt: task.CreatedAt,
+		UpdatedAt: task.UpdatedAt,
+	}
+	return resTask, nil
+}
+
+func (tu *taskUsecase) DeleteTask(userId uint, taskId uint) error {
 	if err := tu.tr.DeleteTask(userId, taskId); err != nil {
 		return err
 	}
